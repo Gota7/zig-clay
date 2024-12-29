@@ -140,7 +140,7 @@ pub fn main() !void {
                 clay.layout(.{
                     .sizing = .{
                         .width = clay.sizingGrow(.{}),
-                        .height = clay.sizingFixed(.{ .min = 60 }),
+                        .height = clay.sizingFixed(60),
                     },
                     .padding = .{ .x = 16 },
                     .child_gap = 16,
@@ -182,7 +182,7 @@ pub fn main() !void {
                             defer file_menu.end();
                             if (clay.child(&[_]clay.ChildConfigOption{ clay.layout(.{
                                 .layout_direction = .top_to_bottom,
-                                .sizing = .{ .width = clay.sizingFixed(.{ .min = 200 }) },
+                                .sizing = .{ .width = clay.sizingFixed(200) },
                             }), clay.rectangle(.{
                                 .color = .{ .r = 40, .g = 40, .b = 40, .a = 255 },
                                 .corner_radius = clay.cornerRadius(8),
@@ -222,7 +222,7 @@ pub fn main() !void {
                         .padding = .{ .x = 16, .y = 16 },
                         .child_gap = 8,
                         .sizing = .{
-                            .width = clay.sizingFixed(.{ .min = 250 }),
+                            .width = clay.sizingFixed(250),
                             .height = clay.sizingGrow(.{}),
                         },
                     }),
