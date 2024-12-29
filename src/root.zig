@@ -699,24 +699,30 @@ fn errorHandlerFn(error_text: C.Clay_ErrorData) callconv(.C) void {
     });
 }
 
-/// Returns the minimum amount of memory in bytes that clay needs to accomodate the current max_element_count.
+/// Returns the minimum amount of memory in bytes that clay needs to accomodate the current max element count.
 pub fn minMemorySize() u32 {
     return C.Clay_MinMemorySize();
 }
 
+/// Creates an `Arena` struct with the given memory slice which can be passed to `initialize()`.
+/// * `buffer` - Block of memory to use as an arena.
 pub fn createArenaWithCapacityAndMemory(buffer: []u8) Arena {
     return C.Clay_CreateArenaWithCapacityAndMemory(@intCast(buffer.len), buffer.ptr);
 }
 
 /// Sets the internal pointer position and state (i.e. current mouse / touch position) and recalculates overlap info,
-/// which is used for mouseover / click calculation (via Clay_PointerOver and updating scroll containers with Clay_UpdateScrollContainers.
-/// isPointerDown should represent the current state this frame,
-/// e.g. it should be true for the entire duration the left mouse button is held down.
-/// Clay has internal handling for detecting click / touch start & end.
+/// which is used for mouseover / click calculation (via `pointerOver()` and updating scroll containers with `updateScrollContainers()`).
+/// * `position` - Mouse position relative to the root UI.
+/// * `pointer_down` - Current state this frame (true as long as the left mouse button is held down).
 pub fn setPointerState(position: Vector2, pointer_down: bool) void {
     C.Clay_SetPointerState(position, pointer_down);
 }
 
+/// Initializes the internal memory mapping, sets the internal dimensions for the layout, and binds an error handler for clay to use when something goes wrong.
+/// * `arena` - Arena to use created with `createArenaWithCapacityAndMemory()`.
+/// * `layout_dimensions` - Size of the root layout.
+/// * `ErrorHandlerUserData` - Type of user data to be used for the error handler.
+/// * `error_handler` - Called whenever clay encounters an error.
 pub fn initialize(arena: Arena, layout_dimensions: Dimensions, comptime ErrorHandlerUserData: type, error_handler: ErrorHandler(ErrorHandlerUserData)) void {
     error_handler_ctx.func = error_handler.handler_function;
     error_handler_ctx.data = error_handler.user_data;
@@ -726,15 +732,27 @@ pub fn initialize(arena: Arena, layout_dimensions: Dimensions, comptime ErrorHan
     });
 }
 
+/// This function handles scrolling of containers.
+/// * `enable_drag_scrolling` - If to allow touch/drag scrolling utilizing the pointer position (will only work if `setPointerState()` was also called).
+/// * `scroll_delta` - Mouse wheel or trackpad scrolling this frame.
+/// * `delta_time` - Time in seconds since the last frame to normalize and smooth scrolling across different refresh rates.
 pub fn updateScrollContainers(enable_drag_scrolling: bool, scroll_delta: Vector2, delta_time: f32) void {
     C.Clay_UpdateScrollContainers(enable_drag_scrolling, scroll_delta, delta_time);
 }
 
+/// Sets the internal layout dimensions.
+/// Cheap enough to be called every frame with your screen dimensions to automatically respond to window resizing, etc.
+///
+/// * `dimensions` - New size of the root layout.
 pub fn setLayoutDimensions(dimensions: Dimensions) void {
     C.Clay_SetLayoutDimensions(dimensions);
 }
 
+/// Layout structure created from `beginLayout()`.
+/// Has an `end()` function to call to get the render commands.
 const Layout = struct {
+    /// Ends declaration of elements and calculates the results of the current layout.
+    /// Renders a `RenderCommandArray` containing the results of the layout calculation.
     pub fn end(self: Layout) RenderCommandArray {
         _ = self;
         return .{
@@ -743,6 +761,8 @@ const Layout = struct {
     }
 };
 
+/// Prepares clay to calculate a new layout.
+/// Called each frrame before any of the elements.
 pub fn beginLayout() Layout {
     C.Clay_BeginLayout();
     return .{};
@@ -796,6 +816,13 @@ fn setMeasureTextFunction_cb(text_data: [*c]C.Clay_String, config: [*c]C.Clay_Te
     return .{ .width = 0, .height = 0 };
 }
 
+/// Takes a function pointer that can be used to measure the width and height of a string.
+/// Used by clay layout to determine `text` element sizing and wrapping.
+///
+/// The string is not guaranteed to be null terminated.
+///
+/// It is essential that this function is as fast as possible.
+/// * `measure_text_function` - Function pointer to measure given text utilizing its text characters and config.
 pub fn setMeasureTextFunction(measure_text_function: *const fn (text: []const u8, config: TextElementConfig) Dimensions) void {
     measure_text_function_cb = measure_text_function;
     C.Clay_SetMeasureTextFunction(setMeasureTextFunction_cb);
@@ -823,10 +850,18 @@ pub fn setCullingEnabled(enabled: bool) void {
     C.Clay_SetCullingEnabled(enabled);
 }
 
+/// Updates the internal maximum element count, allowing clay to allocate larger UI hierarchies.
+///
+/// Clay will need to be re-initialized. Re-check the value of `minMemorySize()`.
+/// * `max_element_count` - New maximum number of elements.
 pub fn setMaxElementCount(max_element_count: u32) void {
     C.Clay_SetMaxElementCount(max_element_count);
 }
 
+/// Updates the internal text measurement cache size, allowing clay to allocate more text.
+///
+/// Clay will need to be re-initialized. Re-check the value of `minMemorySize()`.
+/// * `max_measurement_text_cache_word_count` - How many separate words can be stored in the text measurement cache.
 pub fn setMaxMeasureTextCacheWordCount(max_measure_text_cache_word_count: u32) void {
     C.Clay_SetMaxMeasureTextCacheWordCount(max_measure_text_cache_word_count);
 }
