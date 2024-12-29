@@ -1,3 +1,5 @@
+const RendererRaylib = @import("backends/raylib.zig");
+
 const clay = @import("clay");
 const raylib = @import("raylib");
 const std = @import("std");
@@ -67,7 +69,7 @@ fn err(error_text: clay.ErrorData(void)) void {
 }
 
 pub fn main() !void {
-    clay.RendererRaylib.initialize(
+    RendererRaylib.initialize(
         1024,
         768,
         "Introducing Clay Demo",
@@ -90,13 +92,13 @@ pub fn main() !void {
         .handler_function = err,
         .user_data = &empty,
     });
-    clay.setMeasureTextFunction(clay.RendererRaylib.measureText);
-    clay.RendererRaylib.fonts[font_id_body_16] = .{
+    clay.setMeasureTextFunction(RendererRaylib.measureText);
+    RendererRaylib.fonts[font_id_body_16] = .{
         .font = raylib.loadFontEx("resources/Roboto-Regular.ttf", 48, null),
         .id = font_id_body_16,
     };
-    raylib.setTextureFilter(clay.RendererRaylib.fonts[font_id_body_16].?.font.texture, .bilinear);
-    defer raylib.unloadFont(clay.RendererRaylib.fonts[font_id_body_16].?.font);
+    raylib.setTextureFilter(RendererRaylib.fonts[font_id_body_16].?.font.texture, .bilinear);
+    defer raylib.unloadFont(RendererRaylib.fonts[font_id_body_16].?.font);
     clay.C.Clay_SetDebugModeEnabled(true);
 
     // Main loop.
@@ -304,7 +306,7 @@ pub fn main() !void {
         raylib.beginDrawing();
         raylib.clearBackground(raylib.Color.black);
         var commands = layout.end();
-        clay.RendererRaylib.render(&commands);
+        RendererRaylib.render(&commands);
         raylib.endDrawing();
     }
 }

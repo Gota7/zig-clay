@@ -1,8 +1,5 @@
 pub const C = @cImport(@cInclude("clay.h"));
-const renderer_options = @import("renderer_options");
 const std = @import("std");
-
-pub const RendererRaylib = if (renderer_options.raylib) @import("renderer_raylib.zig") else void;
 
 /// Used for configuring layout options (affect the final position and size of an element, parent, siblings, and children).
 /// * `config` - Layout configuration.

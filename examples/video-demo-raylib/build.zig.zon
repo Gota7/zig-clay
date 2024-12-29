@@ -1,0 +1,17 @@
+.{
+    .name = "clay-example",
+    .version = "0.0.0",
+    .dependencies = .{
+        .clay = .{ .path = "../../" },
+        .@"raylib-zig" = .{
+            .url = "git+https://github.com/Not-Nik/raylib-zig?ref=devel#845af357e4bc5ed8d008a8bb64bd7c4b4906851d",
+            .hash = "122081321a9b6653f90fee325553c9f64934f94b789e7ddbadf27f754a5e42537c4d",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "rescources",
+    },
+}
