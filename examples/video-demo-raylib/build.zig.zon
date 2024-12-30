@@ -3,8 +3,8 @@
     .version = "0.0.0",
     .dependencies = .{
         .clay = .{
-            .url = "git+https://github.com/Gota7/zig-clay#b8d40fdc033f6b30abf518142af8b54f914c7d2c",
-            .hash = "1220073e4a4a1abaf159d8cde784251872346b198463954ff165f50c5234a79ba5c9",
+            .url = "git+https://github.com/Gota7/zig-clay#fc762b8366af0235c8fe2f0a837c41a2acbdfd08",
+            .hash = "1220f6788bef883e4859c943d42737c495505c524d39c132e10226d604b2f99f895d",
         },
         .@"raylib-zig" = .{
             .url = "git+https://github.com/Not-Nik/raylib-zig?ref=devel#845af357e4bc5ed8d008a8bb64bd7c4b4906851d",
