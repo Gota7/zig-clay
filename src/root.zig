@@ -947,7 +947,7 @@ var error_handler_ctx: HandlerCtx = .{
 
 fn errorHandlerFn(error_text: C.Clay_ErrorData) callconv(.C) void {
     const ctx: *HandlerCtx = @ptrFromInt(error_text.userData);
-    const func: *const fn (error_text: ErrorData(anyopaque)) void = @ptrCast(ctx.func.?);
+    const func: *const fn (error_text: ErrorData(anyopaque)) void = @ptrCast(@alignCast(ctx.func.?));
     func(.{
         .error_text = error_text.errorText.chars[0..@intCast(error_text.errorText.length)],
         .error_type = @enumFromInt(error_text.errorType),
@@ -1046,7 +1046,7 @@ pub fn hovered() bool {
 var on_hover_cb: ?*const anyopaque = null;
 
 fn onHoverCb(element_id: C.Clay_ElementId, pointer_data: C.Clay_PointerData, user_data: isize) callconv(.C) void {
-    const func: *const fn (element_id: ElementId, pointer_data: PointerData, user_data: ?*anyopaque) void = @ptrCast(on_hover_cb.?);
+    const func: *const fn (element_id: ElementId, pointer_data: PointerData, user_data: ?*anyopaque) void = @ptrCast(@alignCast(on_hover_cb.?));
     func(ElementId.fromC(element_id), .{ .position = pointer_data.position, .state = @enumFromInt(pointer_data.state) }, @ptrFromInt(@as(usize, @intCast(user_data))));
 }
 
