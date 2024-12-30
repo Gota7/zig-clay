@@ -8,7 +8,7 @@ const font_id_body_16: u16 = 0;
 const color_white = clay.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
 
 fn render_header_button(text: []const u8) void {
-    if (clay.child(&[_]clay.ChildConfigOption{
+    if (clay.child(&.{
         clay.layout(.{
             .padding = .{ .x = 16, .y = 8 },
         }),
@@ -27,7 +27,7 @@ fn render_header_button(text: []const u8) void {
 }
 
 fn render_dropdown_menu_item(text: []const u8) void {
-    if (clay.child(&[_]clay.ChildConfigOption{
+    if (clay.child(&.{
         clay.layout(.{
             .padding = .{ .x = 16, .y = 16 },
         }),
@@ -129,7 +129,7 @@ pub fn main() !void {
 
         // Build UI here.
         const layout = clay.beginLayout();
-        if (clay.child(&[_]clay.ChildConfigOption{
+        if (clay.child(&.{
             clay.id("OuterContainer"),
             clay.rectangle(.{ .color = .{ .r = 43, .g = 41, .b = 51, .a = 255 } }),
             clay.layout(.{
@@ -142,7 +142,7 @@ pub fn main() !void {
             defer outer_container.end();
 
             // Child elements go inside braces.
-            if (clay.child(&[_]clay.ChildConfigOption{
+            if (clay.child(&.{
                 clay.id("HeaderBar"),
                 clay.rectangle(content_background_config),
                 clay.layout(.{
@@ -158,7 +158,7 @@ pub fn main() !void {
                 defer header_bar.end();
 
                 // Header buttons go here.
-                if (clay.child(&[_]clay.ChildConfigOption{
+                if (clay.child(&.{
                     clay.id("FileButton"),
                     clay.layout(.{
                         .padding = .{ .x = 16, .y = 8 },
@@ -178,7 +178,7 @@ pub fn main() !void {
                     const file_menu_visible = clay.pointerOver(clay.getElementId("FileButton")) or clay.pointerOver(clay.getElementId("FileMenu"));
 
                     if (file_menu_visible) {
-                        if (clay.child(&[_]clay.ChildConfigOption{
+                        if (clay.child(&.{
                             clay.id("FileMenu"),
                             clay.floating(.{
                                 .attachment = .{ .parent = .left_bottom },
@@ -188,7 +188,7 @@ pub fn main() !void {
                             }),
                         })) |file_menu| {
                             defer file_menu.end();
-                            if (clay.child(&[_]clay.ChildConfigOption{ clay.layout(.{
+                            if (clay.child(&.{ clay.layout(.{
                                 .layout_direction = .top_to_bottom,
                                 .sizing = .{ .width = clay.sizingFixed(200) },
                             }), clay.rectangle(.{
@@ -204,7 +204,7 @@ pub fn main() !void {
                     }
                 }
                 render_header_button("Edit");
-                if (clay.child(&[_]clay.ChildConfigOption{clay.layout(.{
+                if (clay.child(&.{clay.layout(.{
                     .sizing = .{ .width = clay.sizingGrow(.{}) },
                 })})) |spacer| {
                     defer spacer.end();
@@ -214,7 +214,7 @@ pub fn main() !void {
                 render_header_button("Support");
             }
 
-            if (clay.child(&[_]clay.ChildConfigOption{
+            if (clay.child(&.{
                 clay.id("LowerContent"),
                 clay.layout(.{
                     .sizing = layout_expand,
@@ -222,7 +222,7 @@ pub fn main() !void {
                 }),
             })) |lower_content| {
                 defer lower_content.end();
-                if (clay.child(&[_]clay.ChildConfigOption{
+                if (clay.child(&.{
                     clay.id("Sidebar"),
                     clay.rectangle(content_background_config),
                     clay.layout(.{
@@ -243,7 +243,7 @@ pub fn main() !void {
                         };
 
                         if (i == selected_document_index) {
-                            if (clay.child(&[_]clay.ChildConfigOption{
+                            if (clay.child(&.{
                                 clay.layout(sidebar_button_layout),
                                 clay.rectangle(.{
                                     .color = .{ .r = 120, .g = 120, .b = 120, .a = 255 },
@@ -281,7 +281,7 @@ pub fn main() !void {
                         }
                     }
                 }
-                if (clay.child(&[_]clay.ChildConfigOption{
+                if (clay.child(&.{
                     clay.id("MainContent"),
                     clay.rectangle(content_background_config),
                     clay.scroll(.{ .vertical = true }),

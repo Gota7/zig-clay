@@ -17,7 +17,7 @@ To get around this, a different approach was taken to emulate the feel of the C 
 
 ```zig
 const layout = clay.beginLayout();
-if (clay.child(&[_]clay.ChildConfigOption{
+if (clay.child(&.{
     clay.id("OuterContainer"),
     clay.rectangle(.{ .color = .{ .r = 43, .g = 41, .b = 51, .a = 255 } }),
     clay.layout(.{
