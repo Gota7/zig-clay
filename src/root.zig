@@ -1046,6 +1046,7 @@ pub fn hovered() bool {
 var on_hover_cb: ?*const anyopaque = null;
 
 fn onHoverCb(element_id: C.Clay_ElementId, pointer_data: C.Clay_PointerData, user_data: isize) callconv(.C) void {
+    std.debug.print("{d}\n", .{pointer_data.state});
     const func: *const fn (element_id: ElementId, pointer_data: PointerData, user_data: ?*anyopaque) void = @ptrCast(on_hover_cb.?);
     func(ElementId.fromC(element_id), .{ .position = pointer_data.position, .state = @enumFromInt(pointer_data.state) }, @ptrFromInt(@as(usize, @intCast(user_data))));
 }
@@ -1121,6 +1122,11 @@ pub fn setQueryScrollOffsetFunction(query_scroll_offset_function: *const fn (ele
 /// * `enabled` - If to enable debug mode.
 pub fn setDebugModeEnabled(enabled: bool) void {
     C.Clay_SetDebugModeEnabled(enabled);
+}
+
+/// If debug mode is enabled.
+pub fn isDebugModeEnabled() bool {
+    return C.Clay_IsDebugModeEnabled();
 }
 
 /// Enable or disable culling.
