@@ -93,13 +93,19 @@ pub fn main() !void {
         .user_data = &empty,
     });
     clay.setMeasureTextFunction(RendererRaylib.measureText);
-    RendererRaylib.fonts[font_id_body_16] = .{
+    RendererRaylib.fonts = std.ArrayList(RendererRaylib.Font).init(std.heap.c_allocator);
+    defer RendererRaylib.fonts.?.deinit();
+    try RendererRaylib.fonts.?.append(.{
         .font = raylib.loadFontEx("resources/Roboto-Regular.ttf", 48, null),
         .id = font_id_body_16,
-    };
-    raylib.setTextureFilter(RendererRaylib.fonts[font_id_body_16].?.font.texture, .bilinear);
-    defer raylib.unloadFont(RendererRaylib.fonts[font_id_body_16].?.font);
+    });
+    raylib.setTextureFilter(RendererRaylib.fonts.?.items[font_id_body_16].font.texture, .bilinear);
+    defer raylib.unloadFont(RendererRaylib.fonts.?.items[font_id_body_16].font);
     clay.C.Clay_SetDebugModeEnabled(true);
+
+    // Make text arena.
+    var text_arena = std.heap.ArenaAllocator.init(std.heap.c_allocator);
+    defer text_arena.deinit();
 
     // Main loop.
     while (!raylib.windowShouldClose()) {
@@ -306,7 +312,7 @@ pub fn main() !void {
         raylib.beginDrawing();
         raylib.clearBackground(raylib.Color.black);
         var commands = layout.end();
-        RendererRaylib.render(&commands);
+        RendererRaylib.render(&commands, &text_arena);
         raylib.endDrawing();
     }
 }

@@ -2,13 +2,19 @@ const clay = @import("clay");
 const raylib = @import("raylib");
 const std = @import("std");
 
-const Font = struct {
+/// Font wrapper for raylib renderer.
+pub const Font = struct {
+    /// Font ID for clay.
     id: u32,
+    /// Raylib font information.
     font: raylib.Font,
 };
 
-pub var fonts: [10]?Font = [_]?Font{null} ** 10;
+/// Global font list.
+pub var fonts: ?std.ArrayList(Font) = null;
 
+/// Convert a clay color to a raylib one.
+/// * `color` - Color to convert to a raylib one.
 pub fn clayColorToRaylib(color: clay.Color) raylib.Color {
     return .{
         .r = @intFromFloat(color.r),
@@ -18,14 +24,26 @@ pub fn clayColorToRaylib(color: clay.Color) raylib.Color {
     };
 }
 
+/// Callback for clay to get the dimensions of text data.
+/// * `text` - Input text to measure.
+/// * `config` - Configuration properties of the input text.
 pub fn measureText(text: []const u8, config: clay.TextElementConfig) clay.Dimensions {
+    if (fonts == null) {
+        std.debug.print("Global font list has not been initialized.\n", .{});
+        return .{};
+    }
+    if (config.font_id >= fonts.?.items.len) {
+        std.debug.print("Font ID {d} is invalid.\n", .{config.font_id});
+        return .{};
+    }
+
     var text_size = clay.Dimensions{ .width = 0, .height = 0 };
 
     var max_text_width: f32 = 0;
     var line_text_width: f32 = 0;
 
     const text_height = config.font_size;
-    const font = fonts[config.font_id].?.font;
+    const font = fonts.?.items[config.font_id].font;
     const scale_factor = @as(f32, @floatFromInt(config.font_size)) / @as(f32, @floatFromInt(font.baseSize));
 
     for (0..text.len) |ind| {
@@ -50,21 +68,30 @@ pub fn measureText(text: []const u8, config: clay.TextElementConfig) clay.Dimens
     return text_size;
 }
 
+/// Initialize the clay-raylib renderer with the given configuration flags and window info.
+/// * `width` - Initial window width.
+/// * `height` - Initial window height.
+/// * `title` - Initial window title.
+/// * `config_flags` - Configuration flags for the window.
 pub fn initialize(width: i32, height: i32, title: [*:0]const u8, config_flags: raylib.ConfigFlags) void {
     raylib.setConfigFlags(config_flags);
     raylib.initWindow(width, height, title);
 }
 
-pub fn render(commands: *clay.RenderCommandArray) void {
+/// Handle rendering a clay command list.
+/// * `commands` - Render commands provided from `.end()` for a `Layout`.
+/// * `text_arena` - Arena to allocate text from.
+pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAllocator) void {
     var iter = commands.iter();
     while (iter.next()) |command| {
         switch (command.config) {
             .none => {},
             .text => |text| {
-                const cloned = std.heap.c_allocator.allocSentinel(u8, command.text.?.len, 0) catch unreachable;
-                defer std.heap.c_allocator.free(cloned);
+                const allocator = text_arena.allocator();
+                const cloned = allocator.allocSentinel(u8, command.text.?.len, 0) catch unreachable;
+                defer _ = text_arena.reset(.retain_capacity);
                 std.mem.copyForwards(u8, cloned, command.text.?);
-                const font = fonts[text.font_id].?.font;
+                const font = fonts.?.items[text.font_id].font;
                 raylib.drawTextEx(
                     font,
                     cloned,
@@ -98,12 +125,17 @@ pub fn render(commands: *clay.RenderCommandArray) void {
             .rectangle => |rect| {
                 if (rect.corner_radius.top_left > 0) {
                     const radius = rect.corner_radius.top_left * 2 / (if (command.bounding_box.width > command.bounding_box.height) command.bounding_box.height else command.bounding_box.width);
-                    raylib.drawRectangleRounded(.{
-                        .x = command.bounding_box.x,
-                        .y = command.bounding_box.y,
-                        .width = command.bounding_box.width,
-                        .height = command.bounding_box.height,
-                    }, radius, 8, clayColorToRaylib(rect.color));
+                    raylib.drawRectangleRounded(
+                        .{
+                            .x = command.bounding_box.x,
+                            .y = command.bounding_box.y,
+                            .width = command.bounding_box.width,
+                            .height = command.bounding_box.height,
+                        },
+                        radius,
+                        8,
+                        clayColorToRaylib(rect.color),
+                    );
                 } else {
                     raylib.drawRectangle(
                         @intFromFloat(command.bounding_box.x),
@@ -132,9 +164,20 @@ pub fn render(commands: *clay.RenderCommandArray) void {
                     raylib.drawRectangle(
                         @as(i32, @intFromFloat(command.bounding_box.x + command.bounding_box.width)) - @as(i32, @intCast(border.right.width)),
                         @intFromFloat(command.bounding_box.y + border.corner_radius.top_right),
-                        @intCast(border.left.width),
+                        @intCast(border.right.width),
                         @intFromFloat(command.bounding_box.height - border.corner_radius.top_right - border.corner_radius.bottom_right),
-                        clayColorToRaylib(border.left.color),
+                        clayColorToRaylib(border.right.color),
+                    );
+                }
+
+                // Top border.
+                if (border.top.width > 0) {
+                    raylib.drawRectangle(
+                        @intFromFloat(command.bounding_box.x + border.corner_radius.top_left),
+                        @intFromFloat(command.bounding_box.y),
+                        @intFromFloat(command.bounding_box.width - border.corner_radius.top_left - border.corner_radius.top_right),
+                        @intCast(border.top.width),
+                        clayColorToRaylib(border.top.color),
                     );
                 }
 
