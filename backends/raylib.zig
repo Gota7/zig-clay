@@ -113,10 +113,10 @@ pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAll
             },
             .scissor_start => {
                 raylib.beginScissorMode(
-                    @intFromFloat(command.bounding_box.x),
-                    @intFromFloat(command.bounding_box.y),
-                    @intFromFloat(command.bounding_box.width),
-                    @intFromFloat(command.bounding_box.height),
+                    @intFromFloat(@round(command.bounding_box.x)),
+                    @intFromFloat(@round(command.bounding_box.y)),
+                    @intFromFloat(@round(command.bounding_box.width)),
+                    @intFromFloat(@round(command.bounding_box.height)),
                 );
             },
             .scissor_end => {
@@ -151,10 +151,10 @@ pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAll
                 // Left border.
                 if (border.left.width > 0) {
                     raylib.drawRectangle(
-                        @intFromFloat(command.bounding_box.x),
-                        @intFromFloat(command.bounding_box.y + border.corner_radius.top_left),
+                        @intFromFloat(@round(command.bounding_box.x)),
+                        @intFromFloat(@round(command.bounding_box.y + border.corner_radius.top_left)),
                         @intCast(border.left.width),
-                        @intFromFloat(command.bounding_box.height - border.corner_radius.top_left - border.corner_radius.bottom_left),
+                        @intFromFloat(@round(command.bounding_box.height - border.corner_radius.top_left - border.corner_radius.bottom_left)),
                         clayColorToRaylib(border.left.color),
                     );
                 }
@@ -162,10 +162,10 @@ pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAll
                 // Right border.
                 if (border.right.width > 0) {
                     raylib.drawRectangle(
-                        @as(i32, @intFromFloat(command.bounding_box.x + command.bounding_box.width)) - @as(i32, @intCast(border.right.width)),
-                        @intFromFloat(command.bounding_box.y + border.corner_radius.top_right),
+                        @as(i32, @intFromFloat(@round(command.bounding_box.x + command.bounding_box.width))) - @as(i32, @intCast(border.right.width)),
+                        @intFromFloat(@round(command.bounding_box.y + border.corner_radius.top_right)),
                         @intCast(border.right.width),
-                        @intFromFloat(command.bounding_box.height - border.corner_radius.top_right - border.corner_radius.bottom_right),
+                        @intFromFloat(@round(command.bounding_box.height - border.corner_radius.top_right - border.corner_radius.bottom_right)),
                         clayColorToRaylib(border.right.color),
                     );
                 }
@@ -173,9 +173,9 @@ pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAll
                 // Top border.
                 if (border.top.width > 0) {
                     raylib.drawRectangle(
-                        @intFromFloat(command.bounding_box.x + border.corner_radius.top_left),
-                        @intFromFloat(command.bounding_box.y),
-                        @intFromFloat(command.bounding_box.width - border.corner_radius.top_left - border.corner_radius.top_right),
+                        @intFromFloat(@round(command.bounding_box.x + border.corner_radius.top_left)),
+                        @intFromFloat(@round(command.bounding_box.y)),
+                        @intFromFloat(@round(command.bounding_box.width - border.corner_radius.top_left - border.corner_radius.top_right)),
                         @intCast(border.top.width),
                         clayColorToRaylib(border.top.color),
                     );
@@ -184,9 +184,9 @@ pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAll
                 // Bottom border.
                 if (border.bottom.width > 0) {
                     raylib.drawRectangle(
-                        @intFromFloat(command.bounding_box.x + border.corner_radius.bottom_left),
-                        @as(i32, @intFromFloat(command.bounding_box.y + command.bounding_box.height)) - @as(i32, @intCast(border.bottom.width)),
-                        @intFromFloat(command.bounding_box.width - border.corner_radius.bottom_left - border.corner_radius.bottom_right),
+                        @intFromFloat(@round(command.bounding_box.x + border.corner_radius.bottom_left)),
+                        @as(i32, @intFromFloat(@round(command.bounding_box.y + command.bounding_box.height))) - @as(i32, @intCast(border.bottom.width)),
+                        @intFromFloat(@round(command.bounding_box.width - border.corner_radius.bottom_left - border.corner_radius.bottom_right)),
                         @intCast(border.bottom.width),
                         clayColorToRaylib(border.bottom.color),
                     );
@@ -196,10 +196,10 @@ pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAll
                 if (border.corner_radius.top_left > 0) {
                     raylib.drawRing(
                         .{
-                            .x = command.bounding_box.x + border.corner_radius.top_left,
-                            .y = command.bounding_box.y + border.corner_radius.top_left,
+                            .x = @round(command.bounding_box.x + border.corner_radius.top_left),
+                            .y = @round(command.bounding_box.y + border.corner_radius.top_left),
                         },
-                        border.corner_radius.top_left - @as(f32, @floatFromInt(border.top.width)),
+                        @round(border.corner_radius.top_left) - @as(f32, @floatFromInt(border.top.width)),
                         border.corner_radius.top_left,
                         180,
                         270,
@@ -210,10 +210,10 @@ pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAll
                 if (border.corner_radius.top_right > 0) {
                     raylib.drawRing(
                         .{
-                            .x = command.bounding_box.x + command.bounding_box.width - border.corner_radius.top_right,
-                            .y = command.bounding_box.y + border.corner_radius.top_right,
+                            .x = @round(command.bounding_box.x + command.bounding_box.width - border.corner_radius.top_right),
+                            .y = @round(command.bounding_box.y + border.corner_radius.top_right),
                         },
-                        border.corner_radius.top_right - @as(f32, @floatFromInt(border.top.width)),
+                        @round(border.corner_radius.top_right) - @as(f32, @floatFromInt(border.top.width)),
                         border.corner_radius.top_right,
                         270,
                         360,
@@ -224,10 +224,10 @@ pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAll
                 if (border.corner_radius.bottom_left > 0) {
                     raylib.drawRing(
                         .{
-                            .x = command.bounding_box.x + border.corner_radius.bottom_left,
-                            .y = command.bounding_box.y + command.bounding_box.height - border.corner_radius.bottom_left,
+                            .x = @round(command.bounding_box.x + border.corner_radius.bottom_left),
+                            .y = @round(command.bounding_box.y + command.bounding_box.height - border.corner_radius.bottom_left),
                         },
-                        border.corner_radius.bottom_left - @as(f32, @floatFromInt(border.top.width)),
+                        @round(border.corner_radius.bottom_left) - @as(f32, @floatFromInt(border.top.width)),
                         border.corner_radius.bottom_left,
                         90,
                         180,
@@ -238,10 +238,10 @@ pub fn render(commands: *clay.RenderCommandArray, text_arena: *std.heap.ArenaAll
                 if (border.corner_radius.bottom_right > 0) {
                     raylib.drawRing(
                         .{
-                            .x = command.bounding_box.x + command.bounding_box.width - border.corner_radius.bottom_right,
-                            .y = command.bounding_box.y + command.bounding_box.height - border.corner_radius.bottom_right,
+                            .x = @round(command.bounding_box.x + command.bounding_box.width - border.corner_radius.bottom_right),
+                            .y = @round(command.bounding_box.y + command.bounding_box.height - border.corner_radius.bottom_right),
                         },
-                        border.corner_radius.bottom_right - @as(f32, @floatFromInt(border.bottom.width)),
+                        @round(border.corner_radius.bottom_right) - @as(f32, @floatFromInt(border.bottom.width)),
                         border.corner_radius.bottom_right,
                         0.1,
                         90,
