@@ -7,18 +7,22 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    // Setup clay dependency.
+    const clay_dep = b.dependency("clay", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    const clay = clay_dep.module("clay");
+
     const exe = b.addExecutable(.{
-        .name = "example",
+        .name = "video-demo-raylib",
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
 
     // Clay dep.
-    exe.root_module.addImport("clay", b.dependency("clay", .{
-        .target = target,
-        .optimize = optimize,
-    }).module("clay"));
+    exe.root_module.addImport("clay", clay);
 
     // Raylib dep.
     const raylib = b.dependency("raylib-zig", .{
