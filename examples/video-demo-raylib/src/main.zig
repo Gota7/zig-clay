@@ -86,8 +86,8 @@ pub fn main() !void {
     // Initialize clay.
     var empty = {};
     clay.initialize(arena, .{
-        .width = @floatFromInt(raylib.getScreenWidth()),
-        .height = @floatFromInt(raylib.getScreenHeight()),
+        .width = @floatFromInt(raylib.getRenderWidth()),
+        .height = @floatFromInt(raylib.getRenderHeight()),
     }, void, .{
         .handler_function = err,
         .user_data = &empty,
@@ -111,7 +111,10 @@ pub fn main() !void {
     while (!raylib.windowShouldClose()) {
 
         // External events.
-        clay.setLayoutDimensions(.{ .width = @floatFromInt(raylib.getScreenWidth()), .height = @floatFromInt(raylib.getScreenHeight()) });
+        const width: f32 = @as(f32, @floatFromInt(raylib.getRenderWidth())) / raylib.getWindowScaleDPI().x;
+        const height: f32 = @as(f32, @floatFromInt(raylib.getRenderHeight())) / raylib.getWindowScaleDPI().y;
+        clay.setLayoutDimensions(.{ .width = width, .height = height,});
+
         const mouse_pos = raylib.getMousePosition();
         const scroll_delta = raylib.getMouseWheelMoveV();
         clay.setPointerState(.{ .x = mouse_pos.x, .y = mouse_pos.y }, raylib.isMouseButtonDown(.left));
